@@ -14,7 +14,7 @@ Concurrent = One doctor + multiple assistants. Each assistant handles one patien
 
 
 **The Problem with Iterative Server**
-cwhile(1) {
+while(1) {
     accept();       // accepts client1
     recv();         // talking to client1... client2 is WAITING
     send();
@@ -69,10 +69,7 @@ cwhile(1) {
 Pros: Most efficient, no extra process/thread overhead
 Cons: Logic is more complex
 
-Comparison Table
-Featurefork()threadsselect()New process/threadYes — processYes — threadNoMemory usageHighMediumLowComplexityLowMediumHighCommunication between clientsHard (separate memory)Easy (shared memory)EasyCrash isolationGood (one crash = one process)Bad (one crash = whole server)MediumBest forSimple serversMulti-core systemsHigh performance servers
-
-How fork() Based Concurrent Server Works
+**How fork() Based Concurrent Server Works**
 Client1 connects
     → Server_Parent accepts → fork() → Server_Child1 handles Client1
     → Server_Parent loops back to accept()
@@ -90,17 +87,25 @@ Parent must close connfd (it doesn't use it)
 Parent must call wait() to avoid zombie processes
 
 
-What is a Zombie Process?
+**What is a Zombie Process?**
 When a child process finishes but parent hasn't called wait() yet — the child becomes a zombie. It is dead but still occupies a slot in the process table.
 Fix:
 csignal(SIGCHLD, SIG_IGN);  // auto reap zombies
 // OR
 waitpid(-1, NULL, WNOHANG); // non-blocking wait
 
-Key System Calls Used
-CallPurposesocket()Create socket endpointbind()Attach socket to portlisten()Mark socket as passiveaccept()Accept incoming clientfork()Create child processsend() / recv()Exchange dataclose()Close file descriptorwait() / waitpid()Reap zombie childrenexit()Child exits after serving client
+**Key System Calls Used**
+socket() ---> Create socket endpoint
+bind() ---> Attach socket to port
+listen() ---> Mark socket as passive
+accept() ---> Accept incoming client
+fork() ---> Create child process
+send() / recv() ---> Exchange data
+close() ---> Close file descriptor
+wait() / waitpid() ---> Reap zombie children
+exit() ---> Child exits after serving client
 
-Real World Examples
+**Real World Examples**
 
 Apache Web Server — uses fork/threads to handle multiple HTTP requests
 SSH Server (sshd) — forks a child for every new SSH session
@@ -108,7 +113,12 @@ FTP Server — one child per client connection
 Database servers — PostgreSQL uses one process per connection (fork based)
 
 
-Connection to Your Resume
-You have built 3 versions of concurrent server:
+**compilation process**
+
+gcc cuncurrent_server.c -o server
+gcc cuncurrent_client.c -o client
+
+while launching server app , we need to provide PORT number for server
+while launching client app, we need to provide server_PORT , server_IP
 VersionStatusfork() based concurrent server✅ Built & documentedselect() based chat server (TCP/UDP)✅ Built & in resumeThread basedCan add next
 This shows you understand all 3 approaches to concurrency in Linux — which is exactly what systems programming interviews test. Very strong portfolio. 💪
